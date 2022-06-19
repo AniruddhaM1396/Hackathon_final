@@ -81,6 +81,7 @@ class RegisterApp(APIView):
         try:
             if request.data["email"]:
                 email = request.data["email"]
+                print("email:",email)
         except:
             email="NONE"
         user=User(
@@ -90,13 +91,22 @@ class RegisterApp(APIView):
 			)
         if user:
             user.set_password(request.data["password"])
+            print("user data",user)
             user.save()
             profile=Appuser.objects.create(
 	        		user=user,
 	        		phone_number=request.data["phone_number"],
 	        		email=email,
 	        	)
-            return Response({"Message":"Registered to App successfully"},status = status.HTTP_200_OK)
+            username=request.data.get("user")
+            password=request.data.get("password")
+            print("username:",username)
+            print("password:",password)
+            user = authenticate(username = username, password = password)
+            print('user:',user)
+            token, _ =Token.objects.get_or_create(user = user)
+            return Response({"Token":token.key},status=status.HTTP_200_OK)
+            #return Response({"Message":"Registered to App successfully"},status = status.HTTP_200_OK)
         else:
             return Response({"Message":"Try again with different Username/Password"},status = status.HTTP_400_BAD_REQUEST)
 
