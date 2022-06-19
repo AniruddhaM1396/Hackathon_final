@@ -119,6 +119,11 @@ class GetToken(APIView):
             return Response({"Error":"Username does not exist in database"}, status = status.HTTP_400_BAD_REQUEST)
          
         #successfully create a token
-        user = authenticate(username = username, password = password)
-        token, _ =Token.objects.get_or_create(user = user)
-        return Response({"Token":token.key},status=status.HTTP_200_OK)
+        try:
+            user = authenticate(username = username, password = password)
+            print('user:',user)
+            token, _ =Token.objects.get_or_create(user = user)
+            return Response({"Token":token.key},status=status.HTTP_200_OK)
+
+        except:
+            return Response({"Error":"Password does not match"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
